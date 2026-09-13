@@ -1,5 +1,5 @@
 """
-🔌 MULTI-PROVIDER LLM ADAPTER (Google Gemini, OpenAI & Offline Mock)
+🔌 MULTI-PROVIDER LLM ADAPTER (Google Gemini, OpenAI, Groq & Offline Mock)
 Hỗ trợ Native Tool Calling và chuyển đổi linh hoạt qua biến môi trường LLM_PROVIDER.
 """
 
@@ -137,16 +137,23 @@ class GeminiProvider(BaseLLMProvider):
 
 class OpenAIProvider(BaseLLMProvider):
     """OpenAI Provider (Native Tool Calling với OpenAI SDK)"""
-    def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model_name = model or os.getenv("LLM_MODEL") or "gpt-4o-mini"
+    label = "OpenAI"
+    key_env = "OPENAI_API_KEY"
+    key_placeholder = "your_openai_api_key_here"
+    default_model = "gpt-4o-mini"
+    default_base_url = None  # None: OpenAI SDK tự đọc OPENAI_BASE_URL hoặc dùng endpoint mặc định
+
+    def __init__(self, api_key: str = None, model: str = None, base_url: str = None):
+        self.api_key = api_key or os.getenv(self.key_env)
+        self.model_name = model or os.getenv("LLM_MODEL") or self.default_model
+        self.base_url = base_url or self.default_base_url
 
     def generate(self, prompt: str, system_prompt: str = "") -> str:
-        if not self.api_key or self.api_key == "your_openai_api_key_here":
-            return "[OpenAI Error]: Chưa cấu hình OPENAI_API_KEY trong file .env! Đang sử dụng chế độ Mock."
+        if not self.api_key or self.api_key == self.key_placeholder:
+            return f"[{self.label} Error]: Chưa cấu hình {self.key_env} trong file .env! Đang sử dụng chế độ Mock."
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=self.api_key)
+            client = OpenAI(api_key=self.api_key, base_url=self.base_url)
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
@@ -157,13 +164,13 @@ class OpenAIProvider(BaseLLMProvider):
             return f"[OpenAI Exception]: {str(e)}"
 
     def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
-        if not self.api_key or self.api_key == "your_openai_api_key_here":
-            print("ℹ️ [OpenAI Provider]: Chưa tìm thấy OPENAI_API_KEY hợp lệ. Tự động chuyển sang Mock Offline.")
+        if not self.api_key or self.api_key == self.key_placeholder:
+            print(f"ℹ️ [{self.label} Provider]: Chưa tìm thấy {self.key_env} hợp lệ. Tự động chuyển sang Mock Offline.")
             return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
 
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=self.api_key)
+            client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
             tools = []
             for tool in tools_schema:
@@ -198,17 +205,26 @@ class OpenAIProvider(BaseLLMProvider):
                     "type": "tool_call",
                     "tool_name": call.function.name,
                     "arguments": args,
-                    "thought": f"OpenAI quyết định gọi công cụ '{call.function.name}' với tham số: {json.dumps(args, ensure_ascii=False)}"
+                    "thought": f"{self.label} ({self.model_name}) quyết định gọi công cụ '{call.function.name}' với tham số: {json.dumps(args, ensure_ascii=False)}"
                 }
             else:
                 return {
                     "type": "text",
                     "content": msg.content or "",
-                    "thought": "OpenAI phản hồi trực tiếp bằng văn bản (không cần gọi công cụ)."
+                    "thought": f"{self.label} ({self.model_name}) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ)."
                 }
         except Exception as e:
-            print(f"⚠️ [OpenAI API Warning]: Không thể kết nối live API ({str(e)}). Tự động fallback về Mock.")
+            print(f"⚠️ [{self.label} API Warning]: Không thể kết nối live API ({str(e)}). Tự động fallback về Mock.")
             return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+
+
+class GroqProvider(OpenAIProvider):
+    """Groq Provider (endpoint tương thích OpenAI, Native Tool Calling qua OpenAI SDK)"""
+    label = "Groq"
+    key_env = "GROQ_API_KEY"
+    key_placeholder = "your_groq_api_key_here"
+    default_model = "openai/gpt-oss-120b"
+    default_base_url = "https://api.groq.com/openai/v1"
 
 
 def get_llm_provider() -> BaseLLMProvider:
@@ -225,6 +241,12 @@ def get_llm_provider() -> BaseLLMProvider:
         key = os.getenv("OPENAI_API_KEY")
         if key and key != "your_openai_api_key_here":
             return OpenAIProvider()
+        else:
+            return MockOfflineProvider()
+    elif provider_type == "groq":
+        key = os.getenv("GROQ_API_KEY")
+        if key and key != "your_groq_api_key_here":
+            return GroqProvider()
         else:
             return MockOfflineProvider()
     elif provider_type == "mock":

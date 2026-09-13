@@ -3,9 +3,9 @@
     "step": 1,
     "query": "Chào bạn, bạn có thể giới thiệu quy chế học vụ cơ bản của Đại học VinUni không?",
     "action_type": "FINAL_ANSWER",
-    "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool.",
-    "output": "[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-    "latency_ms": 2845.93
+    "thought": "Groq (openai/gpt-oss-120b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào bạn! Dưới đây là tóm tắt **quy chế học vụ cơ bản** của Đại học VinUniversity (VinUni) mà sinh viên thường quan tâm. Đây là những quy định chung, áp dụng cho toàn bộ sinh viên chính quy và được cập nhật thường xuyên trong Sổ tay sinh viên và website của nhà trường. Nếu bạn cần chi tiết hơn về bất kỳ mục nào hoặc muốn xem bản gốc đầy đủ, hãy cho mình biết nhé!\n\n---\n\n## 1. Đăng ký, nhập học & chuyển đổi\n\n| Nội dung | Quy định chính |\n|----------|----------------|\n| **Đăng ký môn học** | - Thực hiện qua hệ thống e‑Learning (VinUni LMS) trong khung thời gian đăng ký do nhà trường công bố (thường vào cuối học kỳ).<br>- Mỗi sinh viên phải đăng ký tối thiểu **12‑15 tín chỉ** mỗi học kỳ (tùy chương trình). |\n| **Nhập học** | - Hoàn thành các giấy tờ nhập học (hồ sơ cá nhân, giấy tờ chứng minh sức khỏe, lệ phí).<br>- Thực hiện xác nhận qua cổng thông tin sinh viên. |\n| **Chuyển đổi học kỳ** | - Được phép chuyển đổi môn học (thay đổi, bỏ, hoặc đổi môn) chỉ trong vòng **3 ngày** kể từ ngày mở đăng ký (trừ các môn bắt buộc).<br>- Các thay đổi phải được phê duyệt bởi Trưởng bộ môn hoặc Cố vấn học tập. |\n\n---\n\n## 2. Tiến độ học tập & tín chỉ\n\n| Yêu cầu | Nội dung |\n|---------|----------|\n| **Tín chỉ tốt nghiệp** | - Cử nhân: **144‑150 tín chỉ** (tùy ngành).<br>- Thạc sĩ: **30‑36 tín chỉ**. |\n| **Điều kiện tốt nghiệp** | - Hoàn thành đủ số tín chỉ bắt buộc và tự chọn.<br>- Đạt **điểm trung bình tích lũy (GPA) ≥ 2.0** (đối với hầu hết chương trình).<br>- Hoàn thành các đề án/đồ án, thực tập và/hoặc luận văn theo yêu cầu. |\n| **Điểm trung bình (GPA)** | - Tính theo thang điểm 4.0: A=4.0, B=3.0, C=2.0, D=1.0, F=0.<br>- Điểm “Pass/Fail” (P/F) chỉ tính vào tổng số tín chỉ, không ảnh hưởng đến GPA. |\n\n---\n\n## 3. Đánh giá và chấm điểm\n\n| Loại hình đánh giá | Mô tả |\n|--------------------|-------|\n| **Kiểm tra giữa kỳ** (Mid‑term) | Thường chiếm **20‑30%** tổng điểm môn. |\n| **Kiểm tra cuối kỳ** (Final) | Chiếm **40‑50%** tổng điểm môn. |\n| **Bài tập, dự án, thực hành** | Chiếm **20‑30%** tổng điểm, tùy môn học. |\n| **Tham dự lớp** | Một số môn yêu cầu **attendance ≥ 75%**; nếu không đạt sẽ bị trừ điểm hoặc không được phép thi. |\n| **Thi lại** | Nếu sinh viên không đạt điểm đỗ (≥5.0/10), có thể đăng ký thi lại một lần trong học kỳ tiếp theo (theo quy định của bộ môn). |\n\n---\n\n## 4. Quy định về điểm danh và vắng mặt\n\n| Trạng thái | Hệ quả |\n|------------|--------|\n| **Vắng không phép** (Không thông báo trước) | - Trừ 0.5‑1.0 điểm trong thành phần “attendance”.<br>- Nếu vượt quá **3 buổi** trong một học kỳ, sinh viên có thể bị yêu cầu nộp giấy giải trình hoặc không được tham gia thi cuối kỳ. |\n| **Xin nghỉ phép** | - Phải thông báo qua email hoặc hệ thống LMS ít nhất **24 giờ** trước thời gian lớp.<br>- Cần đính kèm giấy chứng nhận y tế (nếu vì lý do sức khỏe). |\n| **Tham dự lớp online** | - Khi lớp học trực tuyến, sinh viên phải đăng nhập và tham gia ít nhất **75%** thời lượng buổi học để được tính “điểm danh”. |\n\n---\n\n## 5. Trình độ học thuật & đạo đức\n\n| Nội quy | Nội dung |\n|--------|----------|\n| **Tránh gian lận** | - Cấm mọi hình thức sao chép, mua bán đề thi, hoặc sử dụng tài liệu không được phép. <br>- Vi phạm sẽ bị xử lý kỷ luật (cảnh cáo, giảm điểm, hủy kết quả thi, hoặc đình chỉ học). |\n| **Bảo mật thông tin** | - Thông tin cá nhân và kết quả học tập phải được bảo mật, chỉ chia sẻ cho người có thẩm quyền (cố vấn, giảng viên). |\n| **Học tập độc lập** | - Khuyến khích làm việc nhóm, nhưng mỗi cá nhân phải nộp bản báo cáo/đề án cá nhân (nếu yêu cầu). |\n\n---\n\n## 6. Thủ tục hành chính\n\n| Thủ tục | Cách thực hiện |\n|---------|----------------|\n| **Xin nghỉ học, chuyển lớp, hoãn thi** | - Đăng ký qua cổng sinh viên → gửi giấy tờ (bệnh án, công văn...) → được phê duyệt bởi Cố vấn học tập. |\n| **Xin chứng chỉ, bản sao bảng điểm** | - Yêu cầu qua hệ thống “Academic Services” → nhận kết quả trong **3-5 ngày làm việc**. |\n| **Đổi tên, sửa thông tin cá nhân** | - Cập nhật trực tiếp trên cổng thông tin sinh viên hoặc nộp hồ sơ tại Phòng Đào tạo. |\n| **Đặt lịch hẹn cố vấn học tập** | - Sử dụng công cụ đặt lịch hẹn (ví dụ: “PGS.TS Nguyễn Văn A”) qua hệ thống hoặc qua chatbot này. |\n\n---\n\n## 7. Các quy định đặc biệt (đối với chương trình quốc tế)\n\n| Nội dung | Chi tiết |\n|----------|----------|\n| **Tiếng Anh** | - Các môn học quốc tế đánh giá dựa trên hệ thống **CEFR** (A1‑C2).<br>- Điểm trung bình môn tiếng Anh phải đạt **B2 trở lên** để đủ điều kiện tốt nghiệp. |\n| **Thực tập quốc tế** | - Thực tập bắt buộc ít nhất **8 tuần** tại công ty hoặc tổ chức nước ngoài.<br>- Đánh giá dựa trên báo cáo, phản hồi của mentor và điểm số từ giảng viên. |\n| **Chương trình trao đổi** | - Được tính tín chỉ nếu có giấy xác nhận của trường đối tác và đáp ứng yêu cầu GPA ≥ 2.5. |\n\n---\n\n## 8. Kênh hỗ trợ sinh viên\n\n- **Cố vấn học tập**: Hỗ trợ về đăng ký môn, kế hoạch học tập, giải quyết khó khăn học thuật.  \n- **Trung tâm Dịch vụ Sinh viên**: Giải đáp các thắc mắc về hồ sơ, tài chính, visa (đối với sinh viên quốc tế).  \n- **Hệ thống LMS & Cổng thông tin sinh viên**: Nơi cập nhật lịch học, điểm số, tài liệu, và đặt lịch hẹn.  \n- **Hotline**: 1900 VinUni (1900 846 846) – hỗ trợ 24/7.\n\n---\n\n### 📌 Lưu ý nhanh:\n\n- **Đăng ký môn** đúng thời gian → tránh mất tín chỉ.  \n- **Đạt GPA ≥ 2.0** → đủ điều kiện tốt nghiệp.  \n- **Tham dự lớp ≥ 75%** → không bị trừ điểm danh.  \n- **Không gian lận** → hậu quả nghiêm trọng, ảnh hưởng đến hồ sơ học tập.  \n\nNếu bạn muốn xem bản quy chế chi tiết (PDF) hoặc có câu hỏi cụ thể về một mục nào đó (ví dụ: quy định về thực tập, cách tính GPA, hay cách đặt lịch hẹn với cố vấn), mình sẵn sàng hỗ trợ thêm! 🌟",
+    "latency_ms": 5114.1
   },
   {
     "step": 1,
@@ -15,15 +15,106 @@
     "arguments": {
       "student_id": "SV2026001"
     },
-    "observation": {},
-    "latency_ms": 799.12
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "SV2026001",
+      "data": {
+        "full_name": "Nguyễn Văn An",
+        "class": "AI-K4",
+        "gpa": 3.85,
+        "email": "an.nv@vinuni.edu.vn",
+        "status": "Đang học",
+        "advisor": "PGS.TS Nguyễn Văn A"
+      }
+    },
+    "latency_ms": 706.2
   },
   {
     "step": 2,
     "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
     "action_type": "FINAL_ANSWER",
     "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-    "output": "Chưa thể trả lời chi tiết do chưa nhận được dữ liệu từ MCP Server (hãy hoàn thành TODO 2.1).",
+    "output": "Kết quả tra cứu cho sinh viên SV2026001 (Nguyễn Văn An): Lớp AI-K4, GPA: 3.85, Email: an.nv@vinuni.edu.vn, Trạng thái: Đang học, Cố vấn: PGS.TS Nguyễn Văn A.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Hãy đặt lịch hẹn tư vấn học vụ cho sinh viên SV2026001 với cố vấn PGS.TS Nguyễn Văn A vào lúc 14:00 ngày 15/09/2026.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "schedule_appointment",
+    "arguments": {
+      "advisor_name": "PGS.TS Nguyễn Văn A",
+      "datetime_str": "14:00 15/09/2026",
+      "student_id": "SV2026001"
+    },  
+    "observation": {
+      "status": "SUCCESS",
+      "booking_id": "BK-SV2026001-99",
+      "student_id": "SV2026001",
+      "datetime": "14:00 15/09/2026",
+      "advisor": "PGS.TS Nguyễn Văn A",
+      "message": "Đặt lịch thành công cho sinh viên SV2026001 với PGS.TS Nguyễn Văn A vào lúc 14:00 15/09/2026."
+    },
+    "latency_ms": 1042.64
+  },
+  {
+    "step": 2,
+    "query": "Hãy đặt lịch hẹn tư vấn học vụ cho sinh viên SV2026001 với cố vấn PGS.TS Nguyễn Văn A vào lúc 14:00 ngày 15/09/2026.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Đặt lịch thành công cho sinh viên SV2026001 với PGS.TS Nguyễn Văn A vào lúc 14:00 15/09/2026.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Sinh viên SV2026002 muốn đặt lịch hẹn tư vấn học vụ vào 09:00 ngày 20/09/2026 với đúng cố vấn học tập đang phụ trách mình, hãy tra cứu cố vấn phù hợp rồi giúp đặt lịch.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "academic_query",
+    "arguments": {
+      "student_id": "SV2026002"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "SV2026002",
+      "data": {
+        "full_name": "Trần Thị Bình",
+        "class": "AI-K4",
+        "gpa": 3.6,
+        "email": "binh.tt@vinuni.edu.vn",
+        "status": "Đang học",
+        "advisor": "TS. Lê Thị B"
+      }
+    },
+    "latency_ms": 722.6
+  },
+  {
+    "step": 2,
+    "query": "Sinh viên SV2026002 muốn đặt lịch hẹn tư vấn học vụ vào 09:00 ngày 20/09/2026 với đúng cố vấn học tập đang phụ trách mình, hãy tra cứu cố vấn phù hợp rồi giúp đặt lịch.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Kết quả tra cứu cho sinh viên SV2026002 (Trần Thị Bình): Lớp AI-K4, GPA: 3.6, Email: binh.tt@vinuni.edu.vn, Trạng thái: Đang học, Cố vấn: TS. Lê Thị B.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Hãy tra cứu thông tin học vụ của sinh viên có mã SV9999999.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "academic_query",
+    "arguments": {
+      "student_id": "SV9999999"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "message": "Không tìm thấy dữ liệu sinh viên có mã 'SV9999999'"
+    },
+    "latency_ms": 689.85
+  },
+  {
+    "step": 2,
+    "query": "Hãy tra cứu thông tin học vụ của sinh viên có mã SV9999999.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Không tìm thấy dữ liệu sinh viên có mã 'SV9999999'",
     "latency_ms": 10.0
   }
 ]
