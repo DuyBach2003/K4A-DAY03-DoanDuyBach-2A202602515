@@ -22,58 +22,93 @@
 
 > ⚠️ **YÊU CẦU NGHIỆM THU:** Mở tệp `.env` điền `GEMINI_API_KEY` (hoặc `OPENAI_API_KEY`) để kết nối LLM thật trước khi thực thi `python src/app.py --all`. Bài nộp chỉ dùng Mock Offline Provider sẽ không đạt điểm nghiệm thực tế.
 
-**Cấu hình LLM thật đã dùng:** Groq API (endpoint tương thích OpenAI `https://api.groq.com/openai/v1`), mô hình `openai/gpt-oss-120b`, chọn qua `LLM_PROVIDER=groq` + `GROQ_API_KEY` trong `.env`. Provider được bổ sung là lớp `GroqProvider` trong `src/providers.py` (kế thừa `OpenAIProvider`, dùng Native Tool Calling của OpenAI SDK). Log chạy xác nhận `🔌 LLM Provider: GroqProvider` và **0 lần fallback về Mock**.
+**Cấu hình LLM thật đã dùng:** Groq API (endpoint tương thích OpenAI `https://api.groq.com/openai/v1`), mô hình `openai/gpt-oss-120b`, chọn qua `LLM_PROVIDER=groq` + `GROQ_API_KEY` trong `.env`. Provider được bổ sung là lớp `GroqProvider` trong `src/providers.py` (kế thừa `OpenAIProvider`, dùng Native Tool Calling của OpenAI SDK). Log chạy xác nhận `🔌 LLM Provider: GroqProvider`, **0 lần fallback về Mock**, và mọi sự kiện trong trace đều ghi `"model": "openai/gpt-oss-120b"`.
 
-Trích xuất log tiêu biểu (TC03 — đặt lịch hẹn) từ file `docs/trace_waterfall.json` sinh ra bởi lệnh `python src/app.py --all` trên Groq API thật:
+**Cơ chế vòng lặp ReAct (`run_react_agent()` trong `src/app.py`):** Agent giữ một lịch sử hội thoại `messages`. Mỗi lượt, LLM nhận toàn bộ lịch sử cùng Tool Schemas:
+- `type == "text"` → ghi `FINAL_ANSWER` và dừng vòng lặp.
+- `type == "tool_call"` → gọi MCP Server (`call_tool` → `dispatch_tool_call`), ghi `TOOL_EXECUTION`, rồi **nạp Action (`tool_calls`) + Observation (message role `tool`) vào lịch sử** để LLM suy luận tiếp ở lượt kế tiếp.
+- Hết `MAX_ITERATIONS = 5` mà chưa có câu trả lời → dừng an toàn.
+
+Trường `thought` lấy từ chuỗi suy luận (`reasoning`) mà `gpt-oss-120b` trả về qua Groq. `latency_ms` được đo thật cho từng bước (bước Tool tách thêm `llm_latency_ms` và `tool_latency_ms`).
+
+Trích xuất log tiêu biểu (TC04 — suy luận đa bước) từ file `docs/trace_waterfall.json` sinh ra bởi lệnh `python src/app.py --all` trên Groq API thật:
 
 ```json
 [
   {
     "step": 1,
-    "query": "Hãy đặt lịch hẹn tư vấn học vụ cho sinh viên SV2026001 với cố vấn PGS.TS Nguyễn Văn A vào lúc 14:00 ngày 15/09/2026.",
+    "query": "Sinh viên SV2026002 muốn đặt lịch hẹn tư vấn học vụ vào 09:00 ngày 20/09/2026 với đúng cố vấn học tập đang phụ trách mình, hãy tra cứu cố vấn phù hợp rồi giúp đặt lịch.",
     "action_type": "TOOL_EXECUTION",
-    "tool_name": "schedule_appointment",
-    "arguments": {
-      "advisor_name": "PGS.TS Nguyễn Văn A",
-      "datetime_str": "14:00 15/09/2026",
-      "student_id": "SV2026001"
-    },
+    "model": "openai/gpt-oss-120b",
+    "thought": "We need to first query academic info for student SV2026002 to get advisor name. Then schedule appointment with that advisor at given datetime. Follow ReAct.",
+    "tool_name": "academic_query",
+    "arguments": { "student_id": "SV2026002" },
     "observation": {
       "status": "SUCCESS",
-      "booking_id": "BK-SV2026001-99",
-      "student_id": "SV2026001",
-      "datetime": "14:00 15/09/2026",
-      "advisor": "PGS.TS Nguyễn Văn A",
-      "message": "Đặt lịch thành công cho sinh viên SV2026001 với PGS.TS Nguyễn Văn A vào lúc 14:00 15/09/2026."
+      "student_id": "SV2026002",
+      "data": {
+        "full_name": "Trần Thị Bình",
+        "class": "AI-K4",
+        "gpa": 3.6,
+        "email": "binh.tt@vinuni.edu.vn",
+        "status": "Đang học",
+        "advisor": "TS. Lê Thị B"
+      }
     },
-    "latency_ms": 1042.64
+    "latency_ms": 908.04,
+    "llm_latency_ms": 907.99,
+    "tool_latency_ms": 0.05
   },
   {
     "step": 2,
-    "query": "Hãy đặt lịch hẹn tư vấn học vụ cho sinh viên SV2026001 với cố vấn PGS.TS Nguyễn Văn A vào lúc 14:00 ngày 15/09/2026.",
+    "action_type": "TOOL_EXECUTION",
+    "model": "openai/gpt-oss-120b",
+    "thought": "We have student data, advisor is \"TS. Lê Thị B\". Need to schedule appointment at 09:00 20/09/2026 with that advisor.\n\nProceed to schedule_appointment tool.",
+    "tool_name": "schedule_appointment",
+    "arguments": {
+      "advisor_name": "TS. Lê Thị B",
+      "datetime_str": "09:00 20/09/2026",
+      "student_id": "SV2026002"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "booking_id": "BK-SV2026002-99",
+      "student_id": "SV2026002",
+      "datetime": "09:00 20/09/2026",
+      "advisor": "TS. Lê Thị B",
+      "message": "Đặt lịch thành công cho sinh viên SV2026002 với TS. Lê Thị B vào lúc 09:00 20/09/2026."
+    },
+    "latency_ms": 878.96,
+    "llm_latency_ms": 878.91,
+    "tool_latency_ms": 0.05
+  },
+  {
+    "step": 3,
     "action_type": "FINAL_ANSWER",
-    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-    "output": "Đặt lịch thành công cho sinh viên SV2026001 với PGS.TS Nguyễn Văn A vào lúc 14:00 15/09/2026.",
-    "latency_ms": 10.0
+    "model": "openai/gpt-oss-120b",
+    "output": "Xin chào bạn! 🎓\n\n✅ Đã tra cứu thông tin sinh viên **SV2026002** và xác nhận cố vấn học tập phụ trách là **TS. Lê Thị B**.  \n✅ Đã đặt lịch hẹn tư vấn học vụ với TS. Lê Thị B vào **09:00 ngày 20/09/2026**.\n\n**Mã đặt lịch:** `BK-SV2026002-99`\n\n...",
+    "latency_ms": 900.16
   }
 ]
 ```
+*(Đã lược bớt trường `query` lặp lại ở step 2–3 và phần cuối của `output`; bản đầy đủ nằm trong `docs/trace_waterfall.json`.)*
 
-**Bảng tổng hợp Waterfall Trace (9 sự kiện):**
+**Bảng tổng hợp Waterfall Trace (10 sự kiện):**
 
-| Test Case | Hành vi kỳ vọng | Hành động thực tế của Agent (Groq) | `latency_ms` (bước LLM) | Kết quả |
+| Test Case | Hành vi kỳ vọng | Chuỗi hành động thực tế của Agent (Groq) | Tổng `latency_ms` | Kết quả |
 | :--- | :--- | :--- | :---: | :---: |
-| TC01 — direct_query | Trả lời trực tiếp, không gọi Tool | `FINAL_ANSWER` trực tiếp, không gọi Tool | 5114.10 | ✅ Đạt |
-| TC02 — single_tool_query | Gọi `academic_query(SV2026001)` | `academic_query({"student_id": "SV2026001"})` → `SUCCESS` | 706.20 | ✅ Đạt |
-| TC03 — appointment_booking | Gọi `schedule_appointment` đúng tham số | `schedule_appointment` với đủ 3 tham số → `SUCCESS`, `BK-SV2026001-99` | 1042.64 | ✅ Đạt |
-| TC04 — multi_step_reasoning | Tra cứu cố vấn → đặt lịch | `academic_query({"student_id": "SV2026002"})` → tìm được cố vấn `TS. Lê Thị B`, **nhưng chưa gọi `schedule_appointment`** | 722.60 | ⚠️ Đạt 1/2 bước |
-| TC05 — edge_case_handling | Nhận `NOT_FOUND`, không bịa dữ liệu | `academic_query({"student_id": "SV9999999"})` → `NOT_FOUND`, phản hồi đúng thông điệp lỗi | 689.85 | ✅ Đạt |
+| TC01 — direct_query | Trả lời trực tiếp, không gọi Tool | `FINAL_ANSWER` trực tiếp, không gọi Tool | 5106.67 | ✅ Đạt |
+| TC02 — single_tool_query | Gọi `academic_query(SV2026001)` | `academic_query({"student_id": "SV2026001"})` → `SUCCESS` → `FINAL_ANSWER` do LLM tổng hợp | 1832.53 | ✅ Đạt |
+| TC03 — appointment_booking | Gọi `schedule_appointment` đúng tham số | `schedule_appointment` đủ 3 tham số → `SUCCESS` (`BK-SV2026001-99`) → `FINAL_ANSWER` | 1573.05 | ✅ Đạt |
+| TC04 — multi_step_reasoning | Tra cứu cố vấn → đặt lịch | `academic_query(SV2026002)` → cố vấn `TS. Lê Thị B` → `schedule_appointment(TS. Lê Thị B, 09:00 20/09/2026)` → `FINAL_ANSWER` | 2687.16 | ✅ Đạt (3 bước) |
+| TC05 — edge_case_handling | Nhận `NOT_FOUND`, không bịa dữ liệu | `academic_query(SV9999999)` → `NOT_FOUND` → xin lỗi, đề nghị kiểm tra lại mã sinh viên | 1571.38 | ✅ Đạt |
 
 **Nhận xét quan sát (Observability):**
-- Độ trễ trung bình khi LLM quyết định gọi Tool (TC02–TC05): **≈ 790 ms**. TC01 chậm nhất (5114 ms) do mô hình sinh câu trả lời văn bản dài.
-- TC04 chỉ đạt 1/2 bước vì hàm `run_react_agent()` trong `src/app.py` kết thúc vòng lặp (`break`) ngay sau Observation đầu tiên, và Observation không được nạp lại cho LLM ở lượt kế tiếp. Vì thế Agent không có cơ hội gọi tiếp `schedule_appointment` với tên cố vấn vừa tra được.
-- `latency_ms: 10.0` của các bước `FINAL_ANSWER` sau Tool là giá trị gán cố định trong `app.py`, không phải thời gian đo thực tế, vì câu trả lời cuối được ghép từ template chứ không gọi LLM.
-- TC01 trả lời từ kiến thức nền của mô hình (ví dụ "144–150 tín chỉ") và mâu thuẫn với câu trả lời 120 tín chỉ ở phiên interactive. Đây là minh chứng rằng thông tin quy chế cần được lấy từ Tool/nguồn dữ liệu chính thức để tránh hallucination.
+- **TC04 chứng minh vòng lặp ReAct nhiều bước hoạt động:** Observation của `academic_query` được nạp lại cho LLM, và LLM dùng đúng tên cố vấn vừa tra được làm tham số `advisor_name` cho `schedule_appointment` (xem `thought` ở step 2). Đây là quyết định động mà Chatbot Baseline không làm được.
+- Độ trễ trung bình của bước LLM quyết định gọi Tool: **≈ 826 ms** (5 lượt). Bước LLM tổng hợp Final Answer sau Observation: **≈ 883 ms** (4 lượt). Thời gian thực thi Tool qua MCP Server không đáng kể (**≈ 0.05 ms**) vì dữ liệu là CSDL mô phỏng trong bộ nhớ. Nút thắt độ trễ nằm hoàn toàn ở LLM.
+- TC01 chậm nhất (5106.67 ms) do mô hình sinh câu trả lời văn bản dài. Nội dung được trả lời từ kiến thức nền của mô hình (ví dụ số tín chỉ tốt nghiệp, tỉ lệ điểm danh), không có Tool quy chế để đối chiếu nên có nguy cơ hallucination. Hướng cải tiến: bổ sung Tool tra cứu quy chế từ nguồn chính thức.
+- Ở câu trả lời cuối của TC04, mô hình thêm câu "Bạn sẽ nhận được email xác nhận và nhắc nhở trước ngày hẹn". Thông tin này **không có trong Observation**, là một ví dụ nhỏ về việc LLM thêm nội dung ngoài dữ liệu Tool dù System Prompt đã cấm. Hướng cải tiến: siết System Prompt hoặc để Tool trả về đầy đủ thông tin thông báo.
+- Bước Final Answer của TC04 không có chuỗi `reasoning` từ API nên `thought` dùng mô tả mặc định của Provider.
 
 **Kiểm thử chế độ đàm thoại trực tiếp (`python src/app.py --interactive`) trên Groq API:**
 
@@ -84,14 +119,16 @@ Trích xuất log tiêu biểu (TC03 — đặt lịch hẹn) từ file `docs/tr
 | "Đặt lịch hẹn tư vấn cho SV2026001 với PGS.TS Nguyễn Văn A vào 14:00 ngày 15/09/2026" | `schedule_appointment` với đủ 3 tham số → `SUCCESS` | ✅ |
 | `exit` | Thoát phiên chat bình thường | ✅ |
 
+*(Phiên interactive được chạy trước khi nâng cấp vòng lặp ReAct nhiều bước. Chế độ `--interactive` ghi đè `docs/trace_waterfall.json` sau mỗi câu hỏi, nên trace nộp bài là trace của lần chạy `--all` cuối cùng.)*
+
 ---
 
 ## 3. TỔNG KẾT KẾT QUẢ NGHIỆM THU & NỘP BÀI
 
 - [x] Đã điền API Key thật trong `.env` và xác nhận Agent chạy mượt mà trên LLM API thật (**Groq — `openai/gpt-oss-120b`**, 0 lần fallback Mock).
 - [x] Đã thử nghiệm thành công chế độ đàm thoại trực tiếp `python src/app.py --interactive` (3/3 câu hỏi phản hồi đúng).
-- **Tổng số Test Cases đã chạy thành công:** 5 / 5 test cases thực thi hoàn tất trên API thật; **4 / 5 đạt đúng hành vi kỳ vọng** (TC04 mới hoàn thành bước tra cứu, chưa tự động đặt lịch).
-- **Số lượt gọi Tool qua MCP Server chính xác:** 4 lượt trong test suite (TC02, TC03, TC04, TC05 đều đúng tên Tool và đúng tham số; TC01 không gọi Tool đúng như kỳ vọng). Phiên interactive có thêm 2 lượt chính xác.
+- **Tổng số Test Cases đã chạy thành công:** 5 / 5 test cases thực thi hoàn tất trên API thật; **5 / 5 đạt đúng hành vi kỳ vọng**, bao gồm TC04 suy luận đa bước (tra cứu → đặt lịch).
+- **Số lượt gọi Tool qua MCP Server chính xác:** 5 lượt trong test suite (TC02: 1, TC03: 1, TC04: 2, TC05: 1), tất cả đúng tên Tool và đúng tham số; TC01 không gọi Tool đúng như kỳ vọng.
 - **Kết quả đẩy Repo nộp bài:** [x] Đã Commit và Push mã nguồn thành công lên GitHub cá nhân.
 
 ---
